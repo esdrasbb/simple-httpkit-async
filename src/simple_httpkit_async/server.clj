@@ -13,14 +13,12 @@
     (@server :timeout 100)
     (reset! server nil)))
 
-(defn show-landing-page []
-  (println "chegou no landing"))
+(defn show-landing-page [amount]
+  (str "chegou no landing " amount))
 
 (defroutes all-routes
   (GET "/" [] (json/write-str {:body "iaeok"}))
-  (GET "/async" [] show-landing-page []) ;; asynchronous(long polling)
-  (context "/user/:name" []
-           (GET / [] show-landing-page []))
+  (GET "/user/:amount" [amount] (show-landing-page [amount]))
   (route/not-found "Not Found")) ;; all other, return 404
 
 (defn start-server [config]
