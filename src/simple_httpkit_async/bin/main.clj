@@ -8,3 +8,8 @@
     (if-not (.exists (java.io.File. "./db.sq3"))
       (db/create-guestbook-table))
     (core/go))
+
+
+pegar o codigo do pedra-papel-tesoura e colocar em um .clojure
+otimizar para dado um usuário e opção (pedra-papel-tesoura) jogar com o computador
+retornar a resposta
