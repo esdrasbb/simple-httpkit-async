@@ -10,6 +10,8 @@
                   ;;JDBC dependencies
                   [org.clojure/java.jdbc "0.2.3"]
                   [org.xerial/sqlite-jdbc "3.7.2"]
+                  ;;Async
+                  [org.clojure/core.async "0.2.374"]
                   ]
 
   :main ^:skip-aot simple-httpkit-async.bin.main)
