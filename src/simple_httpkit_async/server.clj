@@ -2,9 +2,11 @@
   (:require [org.httpkit.server :refer [run-server]]
             [compojure.core :refer [defroutes context routes GET POST]]
             [compojure.route :as route]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [simple-httpkit-async.game :as game]))
 
 (defonce server (atom nil))
+(def game (game/init))
 
 (defn stop-server []
   (when-not (nil? @server)
@@ -13,12 +15,12 @@
     (@server :timeout 100)
     (reset! server nil)))
 
-(defn show-landing-page [amount]
-  (str "chegou no landing " amount))
+(defn play-game [amount]
+  (str "executou " (read-string (amount 0)) " vezes. Resultado: "(game/play-many game (read-string (amount 0)))))
 
 (defroutes all-routes
   (GET "/" [] (json/write-str {:body "iaeok"}))
-  (GET "/user/:amount" [amount] (show-landing-page [amount]))
+  (GET "/amount/:amount" [amount] (play-game [amount]))
   (route/not-found "Not Found")) ;; all other, return 404
 
 (defn start-server [config]

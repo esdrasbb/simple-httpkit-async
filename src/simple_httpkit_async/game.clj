@@ -1,5 +1,5 @@
 (ns simple-httpkit-async.game
-  (:require [clojure.core.async :refer :all]))
+  (:require [clojure.core.async :as a]))
 
 (def MOVES [:rock :paper :scissors])
 (def BEATS {:rock :scissors, :paper :rock, :scissors :paper})
@@ -7,8 +7,8 @@
 (defn rand-player
 "Create a named player and return a channel to report moves."
 [name]
-(let [out (chan)]
-  (go (while true (>! out [name (rand-nth MOVES)])))
+(let [out (a/chan)]
+  (a/go (while true (a/>! out [name (rand-nth MOVES)])))
   out))
 
 (defn winner
@@ -23,17 +23,17 @@
  "Given two channels on which players report moves, create and return an
   output channel to report the results of each match as [move1 move2 winner]."
  [p1 p2]
- (let [out (chan)]
-   (go
+ (let [out (a/chan)]
+   (a/go
     (while true
-      (let [m1 (<! p1)
-            m2 (<! p2)]
-        (>! out [m1 m2 (winner m1 m2)]))))
+      (let [m1 (a/<! p1)
+            m2 (a/<! p2)]
+        (a/>! out [m1 m2 (winner m1 m2)]))))
    out))
 
 (defn init
- "Create 2 players (by default Alice and Bob) and return an output channel of match results."
- ([] (init "Alice" "Bob"))
+ "Create 2 players (by default Player1 and Player2) and return an output channel of match results."
+ ([] (init "Player1" "Player2"))
  ([n1 n2] (judge (rand-player n1) (rand-player n2))))
 
 (defn report
@@ -47,7 +47,7 @@
 (defn play
  "Play by taking a match reporting channel and reporting the results of the latest match."
  [out-chan]
- (apply report (<!! out-chan)))
+ (apply report (a/<!! out-chan)))
 
 (defn play-many
  "Play n matches from out-chan and report a summary of the results."
@@ -56,6 +56,6 @@
         results {}]
    (if (zero? remaining)
      results
-     (let [[m1 m2 winner] (<!! out-chan)]
+     (let [[m1 m2 winner] (a/<!! out-chan)]
        (recur (dec remaining)
               (merge-with + results {winner 1}))))))
