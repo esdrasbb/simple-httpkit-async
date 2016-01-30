@@ -1,9 +1,10 @@
 (ns simple-httpkit-async.server
   (:require [org.httpkit.server :refer [run-server]]
-            [compojure.core :refer [defroutes context routes GET POST]]
+            [compojure.core :refer [defroutes context routes GET PUT]]
             [compojure.route :as route]
             [clojure.data.json :as json]
-            [simple-httpkit-async.game :as game]))
+            [simple-httpkit-async.game :as game]
+            [simple-httpkit-async.db :as db]))
 
 (defonce server (atom nil))
 (def game (game/init))
@@ -19,8 +20,11 @@
   (str "executou " (read-string (amount 0)) " vezes. Resultado: "(game/play-many game (read-string (amount 0)))))
 
 (defroutes all-routes
-  (GET "/" [] (json/write-str {:body "iaeok"}))
+  (GET "/" [] (json/write-str {:body "ok"}))
   (GET "/amount/:amount" [amount] (play-game [amount]))
+  (GET "/user/" [] (db/read-users))
+  (PUT "/user/:name/" [name] (db/save-user name "null"))
+  (PUT "/user/:name/:email" [name email] (db/save-user name email))
   (route/not-found "Not Found")) ;; all other, return 404
 
 (defn start-server [config]
